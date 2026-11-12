@@ -1,0 +1,10 @@
+{
+  "name": "mishi-lunaris",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Juego arcade con Phaser 3 y cinco capítulos",
+  "scripts": {
+    "test": "node --test tests/*.test.cjs",
+    "start": "node tools/server.cjs"
+  }
+}
