@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#102b30" />
+    <title>Mishi · La noche de las estrellas caídas</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="masthead">
+      <a class="brand" href="index.html" aria-label="Lunaris, menú principal"
+        ><span class="brand-star" aria-hidden="true">✦</span> LUNARIS
+        <small>MISHI / LA NOCHE DE LAS ESTRELLAS CAÍDAS</small></a
+      >
+      <div class="header-right">
+        <span class="edition">AVENTURA ARCADE</span
+        ><button id="mute" class="icon-button" aria-label="Silenciar audio">
+          ♫ <span>Sonido</span></button
+        ><button id="pause" class="icon-button" hidden>Ⅱ Pausa</button>
+      </div>
+    </header>
+    <main>
+      <section class="game-shell" aria-label="Juego de Mishi">
+        <div
+          id="game"
+          aria-label="Área de juego. Usa flechas o WASD para volar y espacio para disparar."
+        ></div>
+        <div id="hud" hidden>
+          <div>
+            <small id="level-label">BOSQUE ENCANTADO</small
+            ><strong id="lives">♥ ♥ ♥</strong>
+          </div>
+          <div class="hud-score">
+            <small>CHISPAS RECUPERADAS</small><strong id="score">0000</strong>
+          </div>
+          <div class="hud-progress">
+            <small id="wave-label">OLEADA 1 / 5</small>
+            <div class="progress-track"><i id="progress"></i></div>
+          </div>
+          <div id="powers"></div>
+        </div>
+        <div id="overlay" class="overlay"></div>
+        <div id="touch" hidden>
+          <div class="dpad">
+            <button data-control="up" aria-label="Volar arriba">↑</button
+            ><button data-control="left" aria-label="Volar izquierda">←</button
+            ><button data-control="down" aria-label="Volar abajo">↓</button
+            ><button data-control="right" aria-label="Volar derecha">→</button>
+          </div>
+          <button
+            class="fire"
+            data-control="fire"
+            aria-label="Disparar hechizos"
+          >
+            ✦<span>HECHIZO</span>
+          </button>
+        </div>
+      </section>
+      <section class="below">
+        <div>
+          <span class="tiny-star" aria-hidden="true">⌘</span>
+          <p><strong>CONTROLES RÁPIDOS</strong></p>
+        </div>
+        <p class="touch-help">
+          Mantén las flechas para volar y el botón de hechizo para disparar.
+        </p>
+        <p class="keyboard-help">
+          <kbd>WASD</kbd> / <kbd>↑ ↓ ← →</kbd> Volar <span>·</span>
+          <kbd>ESPACIO</kbd> Disparar <span>·</span> <kbd>P</kbd> Pausa
+        </p>
+        <span class="save-note"><i></i> Guardado automático</span>
+      </section>
+      <section class="journey" aria-label="Los cinco capítulos">
+        <p>RUTA A LUNARIS <span>Tu avance, capítulo a capítulo.</span></p>
+        <div id="chapters"></div>
+      </section>
+    </main>
+    <footer>
+      <span>MISHI · LA NOCHE DE LAS ESTRELLAS CAÍDAS</span
+      ><span>Un jugador · Teclado y controles táctiles</span>
+    </footer>
+    <script src="vendor/phaser.min.js"></script>
+    <script src="src/assets/character.js"></script>
+    <script src="src/assets/art.js"></script>
+    <script src="src/managers/StorageManager.js"></script>
+    <script src="src/audio/AudioManager.js"></script>
+    <script src="src/physics/rules.js"></script>
+    <script src="src/objects/Player.js"></script>
+    <script src="src/objects/Enemy.js"></script>
+    <script src="src/ui/UI.js"></script>
+    <script src="src/scenes/BootScene.js"></script>
+    <script src="src/scenes/MenuScene.js"></script>
+    <script src="src/scenes/PlayScene.js"></script>
+    <script src="src/scenes/EndScene.js"></script>
+    <script src="src/managers/ViewportManager.js"></script>
+    <script src="src/main.js"></script>
+  </body>
+</html>
