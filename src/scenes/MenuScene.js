@@ -38,10 +38,10 @@ Mishi.MenuScene = class extends Phaser.Scene {
     this.tweens.killTweensOf(this.cat);
     this.cat
       .setPosition(
-        this.scale.width * (small ? 0.85 : 0.77),
-        this.scale.height * (small ? 0.8 : 0.52),
+        this.scale.width * (small ? 0.62 : 0.76),
+        this.scale.height * (small ? 0.475 : 0.46),
       )
-      .setScale(small ? 0.23 : 0.72)
+      .setScale(small ? 0.35 : Math.min(0.82, (this.scale.width * 0.42) / 615))
       .setAngle(-5);
     this.tweens.add({
       targets: this.cat,

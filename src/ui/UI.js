@@ -6,10 +6,21 @@ Mishi.UI = {
     el.innerHTML = html;
     el.dataset.view = view;
     el.hidden = false;
+    document.body.dataset.screen = view;
+    if (view === "dialog") {
+      el.setAttribute("role", "dialog");
+      el.setAttribute("aria-labelledby", "panel-title");
+    } else {
+      el.removeAttribute("role");
+      el.removeAttribute("aria-labelledby");
+    }
+    el.scrollTop = 0;
   },
   clear() {
     this.overlay().innerHTML = "";
     this.overlay().hidden = true;
+    document.body.dataset.screen = "play";
+    document.getElementById("pause").textContent = "Pausar";
   },
   bind(id, fn) {
     document.getElementById(id)?.addEventListener("click", () => {
@@ -18,9 +29,15 @@ Mishi.UI = {
     });
   },
   chapters() {
+    const current = Mishi.storage.data.level;
     document.getElementById("chapters").innerHTML = Mishi.LEVELS.map(
-      (l, i) =>
-        `<div class="chapter ${i < Mishi.storage.data.level ? "unlocked" : ""}"><b>${String(i + 1).padStart(2, "0")}</b><span>${l.short}<small>${i < Mishi.storage.data.level ? "DESBLOQUEADO" : "BLOQUEADO"}</small></span></div>`,
+      (
+        level,
+        i,
+      ) => `<li class="chapter ${i < current ? "unlocked" : ""}" ${i + 1 === current ? 'aria-current="step"' : ""}>
+        <span class="chapter-number">${i + 1}</span><span class="chapter-name">${level.short}</span>
+        <span class="sr-only">${i < current ? "Desbloqueado" : "Por descubrir"}</span>
+      </li>`,
     ).join("");
   },
   menu(scene) {
@@ -28,15 +45,18 @@ Mishi.UI = {
     document.getElementById("pause").hidden = true;
     document.getElementById("touch").hidden = true;
     this.chapters();
+    const { level, highScore } = Mishi.storage.data;
     this.set(
       `<div class="menu-copy">
-      <div class="eyebrow"><span class="status-dot"></span> AVENTURA ARCADE <span class="eyebrow-divider">/</span> 5 CAPÍTULOS</div>
-      <h1><span class="title-name">Mishi<span class="title-spark" aria-hidden="true">✦</span></span><span class="title-prefix">y la noche de las</span><span class="title-sub">estrellas caídas</span></h1>
-      <p class="lead">La Bruja Sombra robó la luz de Lunaris.<br>Recupera las estrellas del bosque y enfréntate<br class="desktop-break"> a ella en las torres del castillo.</p>
-      <div class="actions menu-actions">${Mishi.storage.data.level > 1 ? `<button class="primary" id="continue"><span>Continuar<small>Capítulo ${Mishi.storage.data.level} · ${Mishi.LEVELS[Mishi.storage.data.level - 1].short}</small></span><span class="arrow" aria-hidden="true">↗</span></button><button class="secondary" id="start">Nueva partida</button>` : `<button class="primary" id="start"><span>Jugar<small>Comienza en el Bosque Encantado</small></span><span class="arrow" aria-hidden="true">↗</span></button>`}</div>
-      <button class="text-button" id="help"><span aria-hidden="true">⌘</span> Controles y poderes <span aria-hidden="true">→</span></button>
-      <div class="menu-stats"><div><span>RÉCORD PERSONAL</span><strong><i aria-hidden="true">✧</i> ${Mishi.storage.data.highScore.toLocaleString("es")}</strong></div><div><span>PROGRESO</span><strong>${String(Mishi.storage.data.level).padStart(2, "0")} <em>/ 05</em></strong></div></div>
-    </div><div class="art-caption"><span class="caption-line"></span><div><small>DESTINO</small><strong>Castillo de Lunaris</strong></div><span class="caption-symbol" aria-hidden="true">✧</span></div>`,
+        <h1 class="menu-title"><span class="title-name">Mishi</span><span class="title-sub">y la noche de las<br>estrellas caídas</span></h1>
+        <p class="menu-lead">Las estrellas han caído sobre Lunaris.<br>Una escoba, un pequeño gato<br>y un largo camino a casa.</p>
+        <nav class="menu-nav" aria-label="Menú principal">
+          ${level > 1 ? `<button class="menu-option featured" id="continue"><span>Continuar<small>Capítulo ${level} · ${Mishi.LEVELS[level - 1].short}</small></span></button>` : ""}
+          <button class="menu-option ${level > 1 ? "" : "featured"}" id="start">${level > 1 ? "Nueva partida" : "Comenzar aventura"}</button>
+          <button class="menu-option subtle" id="help">Cómo jugar</button>
+        </nav>
+        <p class="menu-record">Tu récord: <strong>${highScore.toLocaleString("es")} puntos</strong></p>
+      </div>`,
       "menu",
     );
     this.bind("start", () =>
@@ -52,11 +72,21 @@ Mishi.UI = {
     this.bind("help", () => this.help(scene));
   },
   help(scene) {
-    this
-      .set(`<div class="center-panel guide-panel"><div class="eyebrow">GUÍA DE VUELO</div><h2>Domina la escoba.</h2><p class="panel-intro">Dispara a las criaturas y recoge las estrellas que liberan. Cuatro oleadas te separan de la Bruja Sombra.</p>
-      <div class="guide-grid"><div><b><span>01</span> Muévete y dispara</b><p><kbd>WASD</kbd> o <kbd>↑ ↓ ← →</kbd> para volar.<br>Mantén <kbd>ESPACIO</kbd> o <kbd>J</kbd> para disparar. <kbd>P</kbd> o <kbd>Esc</kbd> pausa la partida.</p></div><div><b><span>02</span> Protege tus vidas</b><p>Empiezas con 3. Cada 300 puntos recuperas una, hasta un máximo de 7. Si escapan 3 criaturas, pierdes una vida.</p></div></div>
-      <div class="power-guide"><div><span class="power-symbol">◈</span><b>Leche mágica</b><small>Escudo contra el daño</small></div><div><span class="power-symbol">✦</span><b>Pez dorado</b><small>Tres hechizos por disparo</small></div><div><span class="power-symbol">◎</span><b>Ovillo estelar</b><small>Atrae estrellas cercanas</small></div></div>
-      <p class="guide-note">Los poderes duran 8,5 segundos. En móvil, usa la cruceta y mantén pulsado el botón de hechizo.</p><button class="primary" id="back">Volver al menú <span aria-hidden="true">→</span></button></div>`);
+    this.set(`<div class="center-panel guide-panel">
+      <p class="eyebrow">Cómo jugar</p><h2 id="panel-title">Tu primer vuelo</h2>
+      <p>Recoge las estrellas y abre camino hasta el castillo. Allí te espera la Bruja Sombra.</p>
+      <div class="guide-grid">
+        <div><h3>Vuela y lanza hechizos</h3><p><kbd>WASD</kbd> o las <kbd>flechas</kbd> para moverte. Mantén <kbd>Espacio</kbd> o <kbd>J</kbd> para disparar. Pausa con <kbd>P</kbd> o <kbd>Esc</kbd>.</p></div>
+        <div><h3>Cuida tus vidas</h3><p>Empiezas con 3. Cada 300 puntos recuperas una, hasta 7. Si escapan 3 criaturas, pierdes una vida.</p></div>
+      </div>
+      <dl class="power-guide">
+        <div><dt>Leche mágica</dt><dd>Te protege del daño.</dd></div>
+        <div><dt>Pez dorado</dt><dd>Tres hechizos por disparo.</dd></div>
+        <div><dt>Ovillo estelar</dt><dd>Atrae las estrellas cercanas.</dd></div>
+      </dl>
+      <p class="guide-note">Cada poder dura 8,5 segundos. En celular, usa la cruceta y mantén pulsado Hechizo. Puedes moverte y disparar a la vez.</p>
+      <div class="actions"><button class="primary" id="back">Volver al menú</button></div>
+    </div>`);
     this.bind("back", () => this.menu(scene));
   },
   hud(scene) {
@@ -65,38 +95,47 @@ Mishi.UI = {
     document.getElementById("touch").hidden = !(
       matchMedia("(any-pointer: coarse)").matches || innerWidth < 900
     );
-    document.getElementById("level-label").textContent =
-      scene.config.short.toUpperCase();
-    document.getElementById("score").textContent = String(scene.score).padStart(
-      4,
-      "0",
-    );
-    document.getElementById("lives").textContent = "♥ ".repeat(scene.lives);
+    document.getElementById("level-label").textContent = scene.config.short;
+    document.getElementById("score").textContent =
+      scene.score.toLocaleString("es");
+    const lives = document.getElementById("lives");
+    lives.textContent = "♥ ".repeat(scene.lives);
+    lives.setAttribute("aria-label", `${scene.lives} vidas`);
     document.getElementById("wave-label").textContent =
       scene.level === 5
-        ? `SOMBRA · FASE ${scene.bossPhase}/3`
-        : `OLEADA ${scene.level} / 5`;
-    document.getElementById("progress").style.width =
-      (scene.level === 5
+        ? `Sombra · Fase ${scene.bossPhase} de 3`
+        : `Capítulo ${scene.level} de 5`;
+    const progress =
+      scene.level === 5
         ? (scene.bossHP / scene.bossMaxHP) * 100
-        : (scene.resolved / scene.config.total) * 100) + "%";
+        : (scene.resolved / scene.config.total) * 100;
+    document.getElementById("progress").style.width = progress + "%";
+    const track = document.querySelector(".progress-track");
+    track.setAttribute("aria-valuenow", String(Math.round(progress)));
+    track.setAttribute(
+      "aria-label",
+      scene.level === 5 ? "Vida de la Bruja Sombra" : "Avance del capítulo",
+    );
     document.getElementById("powers").textContent = Object.entries(
       scene.player.powers,
     )
       .filter(([, until]) => until > scene.activeTime)
       .map(
-        ([k, until]) =>
-          ({ shield: "◈ Escudo", triple: "✦ Triple", magnet: "◎ Imán" })[k] +
-          " " +
+        ([key, until]) =>
+          ({ shield: "Escudo", triple: "Triple disparo", magnet: "Imán" })[
+            key
+          ] +
+          " · " +
           Math.ceil((until - scene.activeTime) / 1000) +
           " s",
       )
-      .join("   ");
+      .join(" / ");
   },
   toast(text) {
     document.querySelector(".toast")?.remove();
     const el = document.createElement("div");
     el.className = "toast";
+    el.setAttribute("role", "status");
     el.textContent = text;
     document.querySelector(".game-shell").append(el);
     clearTimeout(this.toastTimer);
@@ -107,9 +146,13 @@ Mishi.UI = {
     scene.physics.pause();
     Mishi.audio.paused = true;
     document.getElementById("touch").hidden = true;
-    this.set(
-      `<div class="center-panel"><span class="panel-mark" aria-hidden="true">Ⅱ</span><div class="eyebrow">PARTIDA EN PAUSA</div><h2>Vuelo suspendido.</h2><p>${scene.config.name}<br><strong>${scene.score} puntos</strong> · Tu partida sigue aquí.</p><div class="actions"><button class="primary" id="resume">Reanudar <span aria-hidden="true">→</span></button><button class="secondary" id="exit">Salir al menú</button></div><p class="panel-note">Al salir se conserva el capítulo desbloqueado, no la partida actual.</p></div>`,
-    );
+    document.getElementById("pause").textContent = "Reanudar";
+    this.set(`<div class="center-panel">
+      <p class="eyebrow">Pausa</p><h2 id="panel-title">Un respiro en el camino</h2>
+      <p>${scene.config.name}<br><strong>${scene.score.toLocaleString("es")} puntos</strong></p>
+      <div class="actions"><button class="primary" id="resume">Seguir volando</button><button class="secondary" id="exit">Volver al menú</button></div>
+      <p class="panel-note">Al salir conservarás los capítulos desbloqueados.<br>La partida actual no se guarda.</p>
+    </div>`);
     this.bind("resume", () => this.resume(scene));
     this.bind("exit", () => {
       Mishi.audio.paused = false;

@@ -5,6 +5,34 @@ const path = require("node:path");
 const vm = require("node:vm");
 const root = path.resolve(__dirname, "..");
 
+// Usa el despacho de colisiones de la versión de Phaser incluida en el juego.
+function arcadeOverlapWorld() {
+  const source = fs.readFileSync(
+    path.join(root, "vendor/phaser.min.js"),
+    "utf8",
+  );
+  const method = (name, next) => {
+    const start = source.indexOf(name + ":function");
+    const end = source.indexOf("," + next + ":function", start);
+    assert.ok(start >= 0 && end > start);
+    return vm.runInNewContext(
+      "(" + source.slice(start + name.length + 1, end) + ")",
+      { h: { STATIC_BODY: 1, DYNAMIC_BODY: 0 } },
+    );
+  };
+  return {
+    useTree: false,
+    _total: 0,
+    canCollide: () => true,
+    separate: (a, b) => a.enable && b.enable,
+    collideHandler: method("collideHandler", "canCollide"),
+    collideSpriteVsGroup: method(
+      "collideSpriteVsGroup",
+      "collideGroupVsTilemapLayer",
+    ),
+  };
+}
+
 // Dobles pequeños para verificar reglas sin depender de WebGL ni un navegador.
 function setup(saved = null, broken = false) {
   let stored = saved;
@@ -281,14 +309,26 @@ test("jefe pasa por tres fases y gana solo al agotar resistencia", () => {
   const c = setup(),
     s = scene(c);
   const overlaps = [];
+  const world = arcadeOverlapWorld();
+  const shots = [];
+  s.shots = {
+    isParent: true,
+    physicsType: 0,
+    children: { entries: shots },
+    getLength: () => shots.length,
+    getChildren: () => shots,
+  };
   let won = false;
   s.level = 5;
   s.scale = { width: 1280, height: 720 };
   const boss = {
     active: true,
+    visible: true,
     x: 1000,
     y: 300,
     body: {
+      enable: true,
+      checkCollision: { none: false },
       setSize() {
         return this;
       },
@@ -308,10 +348,16 @@ test("jefe pasa por tres fases y gana solo al agotar resistencia", () => {
     },
     disableBody() {
       this.active = false;
+      this.visible = false;
+      this.body.enable = false;
     },
   };
+  boss.body.gameObject = boss;
   s.physics = {
-    add: { sprite: () => boss, overlap: (a, b, fn) => overlaps.push(fn) },
+    add: {
+      sprite: () => boss,
+      overlap: (a, b, fn) => overlaps.push({ a, b, fn }),
+    },
   };
   s.cameras.main.flash = () => {};
   s.burst = () => {};
@@ -320,24 +366,56 @@ test("jefe pasa por tres fases y gana solo al agotar resistencia", () => {
     s.ending = true;
   };
   s.createBoss();
-  const shoot = () =>
-    overlaps[0]({
+  const collide = () => {
+    const { a, b, fn } = overlaps[0];
+    world.collideHandler(a, b, fn, null, s, true);
+  };
+  const shoot = () => {
+    const shot = {
       active: true,
+      visible: true,
       x: 1000,
       y: 300,
+      body: { enable: true, checkCollision: { none: false } },
       disableBody() {
         this.active = false;
+        this.visible = false;
+        this.body.enable = false;
       },
-    });
-  for (let i = 0; i < 34; i++) shoot();
+    };
+    shot.body.gameObject = shot;
+    shots.push(shot);
+    collide();
+    return shot;
+  };
+  const firstShot = shoot();
+  assert.equal(s.bossHP, 99);
+  assert.equal(
+    boss.active,
+    true,
+    "El jefe debe seguir activo tras el primer disparo",
+  );
+  assert.equal(boss.visible, true, "El primer disparo no debe ocultar al jefe");
+  assert.equal(boss.body.enable, true);
+  assert.equal(firstShot.active, false, "Se consume la bala, no el jefe");
+  assert.equal(won, false);
+  collide();
+  assert.equal(s.bossHP, 99, "Una bala consumida no debe volver a causar daño");
+  for (let i = 0; i < 33; i++) shoot();
   assert.equal(s.bossPhase, 2);
+  assert.equal(boss.visible, true);
   for (let i = 0; i < 33; i++) shoot();
   assert.equal(s.bossPhase, 3);
+  assert.equal(boss.visible, true);
   assert.equal(won, false);
   for (let i = 0; i < 33; i++) shoot();
   assert.equal(won, true);
   assert.equal(boss.active, false);
+  assert.equal(boss.visible, false);
+  assert.equal(s.bossHP, 0);
   assert.equal(s.score, 300);
+  shoot();
+  assert.equal(s.score, 300, "La recompensa solo se concede una vez");
 });
 test("HTML referencia archivos existentes y no depende de un CDN", () => {
   const html = fs.readFileSync(path.join(root, "index.html"), "utf8");

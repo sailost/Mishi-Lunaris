@@ -10,9 +10,7 @@ Mishi.touch = {
 };
 const mute = document.getElementById("mute");
 function updateMute() {
-  mute.innerHTML = Mishi.audio.muted
-    ? "♪ <span>Sin sonido</span>"
-    : "♫ <span>Sonido</span>";
+  mute.innerHTML = Mishi.audio.muted ? "Sonido desactivado" : "Sonido activado";
   mute.setAttribute(
     "aria-label",
     Mishi.audio.muted ? "Activar audio" : "Silenciar audio",

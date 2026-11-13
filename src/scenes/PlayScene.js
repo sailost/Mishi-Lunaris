@@ -163,8 +163,9 @@ Mishi.PlayScene = class extends Phaser.Scene {
       .setDepth(7)
       .setImmovable(true);
     this.boss.body.setSize(142, 180).setOffset(80, 55);
-    this.physics.add.overlap(this.shots, this.boss, (shot) => {
-      if (!shot.active || this.ending) return;
+    // En un overlap sprite/grupo, Phaser entrega primero el sprite y luego la bala.
+    this.physics.add.overlap(this.boss, this.shots, (boss, shot) => {
+      if (!boss.active || !shot.active || this.frozen || this.ending) return;
       shot.disableBody(true, true);
       this.bossHP--;
       this.burst(shot.x, shot.y, 2);
@@ -339,7 +340,7 @@ Mishi.PlayScene = class extends Phaser.Scene {
     document.getElementById("pause").hidden = true;
     Mishi.audio.fx("win");
     Mishi.UI.set(
-      `<div class="center-panel"><span class="panel-mark" aria-hidden="true">✦</span><div class="eyebrow">CAPÍTULO ${String(this.level).padStart(2, "0")} COMPLETADO</div><h2>Camino despejado.</h2><p>Has superado ${this.config.name}.<br>Siguiente destino: <strong>${Mishi.LEVELS[this.level].name}</strong>.</p><div class="result-score">${this.score}</div><div class="result-label">PUNTOS ACUMULADOS</div><p>${this.lives} ${this.lives === 1 ? "vida disponible" : "vidas disponibles"} · Progreso guardado</p><div class="actions"><button class="primary" id="next">Siguiente capítulo →</button><button class="secondary" id="menu-between">Salir al menú</button></div></div>`,
+      `<div class="center-panel"><p class="eyebrow">Capítulo ${this.level} completado</p><h2 id="panel-title">El camino sigue</h2><p>${this.config.name} queda atrás.<br>Próxima parada: <strong>${Mishi.LEVELS[this.level].name}</strong>.</p><div class="result-score">${this.score.toLocaleString("es")}</div><div class="result-label">Puntos reunidos</div><p>${this.lives} ${this.lives === 1 ? "vida disponible" : "vidas disponibles"} · Progreso guardado</p><div class="actions"><button class="primary" id="next">Siguiente capítulo</button><button class="secondary" id="menu-between">Volver al menú</button></div></div>`,
     );
     Mishi.UI.bind("next", () =>
       this.scene.restart({
