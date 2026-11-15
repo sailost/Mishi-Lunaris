@@ -91,7 +91,9 @@ for (const button of document.querySelectorAll("[data-control]")) {
     stick.addEventListener(ev, (e) => {
       if (e.pointerId === activeId) release();
     });
-  window.addEventListener("blur", release);
+  window.addEventListener("blur", () => {
+    if (!matchMedia("(any-pointer: coarse)").matches) release();
+  });
   Mishi.releaseStick = release;
 })();
 document.addEventListener("visibilitychange", () => {

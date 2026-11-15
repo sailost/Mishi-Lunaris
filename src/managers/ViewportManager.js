@@ -32,7 +32,12 @@ Mishi.ViewportManager = class {
       this.container.clientWidth,
       this.container.clientHeight,
     );
-    if (!size || size.width === this.game.scale.width) return;
+    if (!size) return;
+    const current = this.game.scale.width;
+    // Ignora cambios pequeños (la barra de direcciones del móvil que sube o baja):
+    // Phaser ya escala el lienzo y así no se reinician los controles en pleno juego.
+    if (size.width === current) return;
+    if (Math.abs(size.width - current) / current < 0.05) return;
     this.game.scale.resize(size.width, size.height);
   }
 

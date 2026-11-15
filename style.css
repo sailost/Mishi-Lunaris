@@ -25,6 +25,10 @@
 [hidden] {
   display: none !important;
 }
+html,
+body {
+  overscroll-behavior: none;
+}
 body {
   margin: 0;
   background: var(--ink);
@@ -611,6 +615,7 @@ body[data-screen="dialog"] #hud {
 }
 @media (min-width: 651px) and (max-width: 1000px) and (min-height: 541px) {
   .game-shell {
+    width: 100%;
     min-height: 560px;
   }
 }
@@ -630,7 +635,7 @@ body[data-screen="dialog"] #hud {
   }
   .game-shell {
     aspect-ratio: auto;
-    height: clamp(700px, calc(100svh - 96px), 225vw);
+    height: clamp(380px, calc(100svh - 112px), 225vw);
   }
   .overlay[data-view="menu"] {
     padding: 28px 28px 110px;

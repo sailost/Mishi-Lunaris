@@ -145,6 +145,9 @@ Mishi.PlayScene = class extends Phaser.Scene {
         : this.config.name,
     );
     this.blur = () => {
+      // En celulares "blur" salta sin motivo (barra de direcciones, notificaciones);
+      // el cambio real de app o pestaña ya lo cubre "visibilitychange".
+      if (matchMedia("(any-pointer: coarse)").matches) return;
       if (!this.frozen && !this.ending) Mishi.UI.pause(this);
       Object.keys(Mishi.touch).forEach(
         (k) => (Mishi.touch[k] = k === "x" || k === "y" ? 0 : false),
