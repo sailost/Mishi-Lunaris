@@ -18,9 +18,15 @@ Mishi.Player = class extends Phaser.Physics.Arcade.Sprite {
     let y =
       Number(!!(keys.down.isDown || keys.S.isDown || touch.down)) -
       Number(!!(keys.up.isDown || keys.W.isDown || touch.up));
-    const v = new Phaser.Math.Vector2(x, y)
-      .normalize()
-      .scale(Mishi.Rules.playerSpeed);
+    // El joystick aporta un vector analógico; el teclado y los botones, uno digital.
+    x += Number(touch.x) || 0;
+    y += Number(touch.y) || 0;
+    const len = Math.hypot(x, y);
+    if (len > 1) {
+      x /= len;
+      y /= len;
+    }
+    const v = { x: x * Mishi.Rules.playerSpeed, y: y * Mishi.Rules.playerSpeed };
     this.setVelocity(v.x, v.y);
     this.setAngle(y * 6);
   }

@@ -13,7 +13,8 @@ Mishi.ViewportManager = class {
     this.game = game;
     this.container = container;
     this.onResize = (size) => {
-      for (const key of Object.keys(Mishi.touch)) Mishi.touch[key] = false;
+      for (const key of Object.keys(Mishi.touch)) Mishi.touch[key] = key === "x" || key === "y" ? 0 : false;
+      Mishi.releaseStick?.();
       for (const scene of game.scene.getScenes(true)) {
         scene.resizeViewport?.(size.width, size.height);
       }

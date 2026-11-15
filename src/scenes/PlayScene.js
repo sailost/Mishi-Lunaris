@@ -139,19 +139,27 @@ Mishi.PlayScene = class extends Phaser.Scene {
     Mishi.UI.hud(this);
     Mishi.UI.toast(
       this.level === 1
-        ? "Vuela con WASD o flechas · Mantén ESPACIO para lanzar luz"
+        ? matchMedia("(any-pointer: coarse)").matches || innerWidth < 900
+          ? "Arrastra el joystick para volar · Mantén Hechizo para lanzar luz"
+          : "Vuela con WASD o flechas · Mantén ESPACIO para lanzar luz"
         : this.config.name,
     );
     this.blur = () => {
       if (!this.frozen && !this.ending) Mishi.UI.pause(this);
-      Object.keys(Mishi.touch).forEach((k) => (Mishi.touch[k] = false));
+      Object.keys(Mishi.touch).forEach(
+        (k) => (Mishi.touch[k] = k === "x" || k === "y" ? 0 : false),
+      );
+      Mishi.releaseStick?.();
     };
     window.addEventListener("blur", this.blur);
     this.events.once("shutdown", () => {
       window.removeEventListener("blur", this.blur);
       document.querySelector(".toast")?.remove();
       Mishi.audio.paused = false;
-      Object.keys(Mishi.touch).forEach((k) => (Mishi.touch[k] = false));
+      Object.keys(Mishi.touch).forEach(
+        (k) => (Mishi.touch[k] = k === "x" || k === "y" ? 0 : false),
+      );
+      Mishi.releaseStick?.();
     });
   }
   createBoss() {

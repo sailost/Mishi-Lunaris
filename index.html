@@ -54,11 +54,13 @@
           <ol id="chapters"></ol>
         </aside>
         <div id="touch" hidden>
-          <div class="dpad">
-            <button data-control="up" aria-label="Volar arriba">↑</button
-            ><button data-control="left" aria-label="Volar izquierda">←</button
-            ><button data-control="down" aria-label="Volar abajo">↓</button
-            ><button data-control="right" aria-label="Volar derecha">→</button>
+          <div
+            class="stick"
+            id="stick"
+            role="application"
+            aria-label="Joystick para volar: arrastra en cualquier dirección"
+          >
+            <div class="stick-knob" id="stick-knob"></div>
           </div>
           <button
             class="fire"
@@ -71,7 +73,7 @@
       </section>
       <section class="below">
         <p class="touch-help">
-          Mantén las flechas para volar y Hechizo para disparar.
+          Arrastra el joystick para volar y mantén Hechizo para disparar.
         </p>
         <p class="keyboard-help">
           <kbd>WASD</kbd> / <kbd>↑ ↓ ← →</kbd> Volar <span>·</span>

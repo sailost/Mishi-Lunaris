@@ -7,6 +7,8 @@ Mishi.touch = {
   left: false,
   right: false,
   fire: false,
+  x: 0,
+  y: 0,
 };
 const mute = document.getElementById("mute");
 function updateMute() {
@@ -38,6 +40,60 @@ for (const button of document.querySelectorAll("[data-control]")) {
   for (const event of ["pointerup", "pointercancel", "lostpointercapture"])
     button.addEventListener(event, () => (Mishi.touch[key] = false));
 }
+
+// Joystick virtual: x e y van de -1 a 1 según lo lejos que se arrastre la bolita.
+(function () {
+  const stick = document.getElementById("stick");
+  const knob = document.getElementById("stick-knob");
+  let activeId = null;
+  function release() {
+    activeId = null;
+    Mishi.touch.x = 0;
+    Mishi.touch.y = 0;
+    knob.style.transform = "translate(-50%, -50%)";
+    stick.classList.remove("active");
+  }
+  function update(e) {
+    const rect = stick.getBoundingClientRect();
+    const radius = rect.width / 2;
+    const max = radius * 0.62;
+    let dx = e.clientX - (rect.left + radius);
+    let dy = e.clientY - (rect.top + radius);
+    const dist = Math.hypot(dx, dy);
+    if (dist > max) {
+      dx = (dx / dist) * max;
+      dy = (dy / dist) * max;
+    }
+    knob.style.transform =
+      "translate(calc(-50% + " + dx + "px), calc(-50% + " + dy + "px))";
+    const dead = 0.12;
+    const mag = Math.hypot(dx, dy) / max;
+    if (mag < dead) {
+      Mishi.touch.x = 0;
+      Mishi.touch.y = 0;
+    } else {
+      Mishi.touch.x = dx / max;
+      Mishi.touch.y = dy / max;
+    }
+  }
+  stick.addEventListener("pointerdown", (e) => {
+    if (activeId !== null) return;
+    e.preventDefault();
+    activeId = e.pointerId;
+    stick.setPointerCapture(e.pointerId);
+    stick.classList.add("active");
+    update(e);
+  });
+  stick.addEventListener("pointermove", (e) => {
+    if (e.pointerId === activeId) update(e);
+  });
+  for (const ev of ["pointerup", "pointercancel", "lostpointercapture"])
+    stick.addEventListener(ev, (e) => {
+      if (e.pointerId === activeId) release();
+    });
+  window.addEventListener("blur", release);
+  Mishi.releaseStick = release;
+})();
 document.addEventListener("visibilitychange", () => {
   if (document.hidden) {
     const scene = Mishi.game.scene.getScene("Play");

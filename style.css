@@ -505,25 +505,34 @@ body[data-screen="dialog"] #hud {
 #touch button:active {
   background: #8f8052;
 }
-.dpad {
-  display: grid;
-  grid-template-columns: repeat(3, 48px);
-  gap: 4px;
+.stick {
+  position: relative;
+  width: 132px;
+  height: 132px;
+  border-radius: 50%;
+  align-self: end;
+  pointer-events: auto;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  background: radial-gradient(circle, #173c3566 0 40%, #173c35b3 100%);
+  border: 2px solid #d1ddba85;
 }
-.dpad button:first-child {
-  grid-column: 2;
+.stick.active {
+  border-color: var(--gold);
 }
-.dpad button:nth-child(2) {
-  grid-column: 1;
-  grid-row: 2;
-}
-.dpad button:nth-child(3) {
-  grid-column: 2;
-  grid-row: 2;
-}
-.dpad button:nth-child(4) {
-  grid-column: 3;
-  grid-row: 2;
+.stick-knob {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: #e8c078cc;
+  border: 2px solid #f5ecd4;
+  box-shadow: 0 2px 8px #0008;
+  pointer-events: none;
 }
 #touch .fire {
   width: 76px;
@@ -798,13 +807,13 @@ body[data-screen="dialog"] #hud {
   #touch {
     bottom: 10px;
   }
-  .dpad {
-    grid-template-columns: repeat(3, 44px);
-    gap: 3px;
+  .stick {
+    width: 112px;
+    height: 112px;
   }
-  #touch button {
-    width: 44px;
-    height: 44px;
+  .stick-knob {
+    width: 50px;
+    height: 50px;
   }
   #touch .fire {
     width: 64px;
