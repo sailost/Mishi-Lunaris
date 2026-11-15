@@ -6,12 +6,13 @@
 - Anndy Rengifo
 - Stiven Viscaino
 
-
 # Mishi y la Noche de las Estrellas Caídas
 
 Videojuego **Arcade Shooter** 2D hecho con JavaScript y Phaser 3.90.0. Mishi, una gatita bruja aprendiz, vuela en su escoba por cinco escenarios para recoger las chispas de la Linterna Estelar de Lunaris y enfrentarse a la Bruja Sombra.
 
 - **Jugar en línea (computadora y celular):** https://sailost.github.io/Mishi-Lunaris/
+
+- **link presentación:** https://canva.link/craqw6ubpwndsoh
 
 ## Historia
 
