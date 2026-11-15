@@ -1,3 +1,12 @@
+# PROYECTO FINAL PRIMER BIMESTRE : DESARROLLO DE VIDEOJUEGOS CON PHASER.JS
+
+# Integrantes:
+
+- Isabel Farinango
+- Anndy Rengifo
+- Stiven Viscaino
+
+
 # Mishi y la Noche de las Estrellas Caídas
 
 Videojuego arcade desarrollado con JavaScript y Phaser 3.90.0. Mishi recorre cinco escenarios para recuperar las estrellas de Lunaris y enfrentarse a la Bruja Sombra.
